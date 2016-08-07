@@ -1,12 +1,10 @@
-package com.yalantis.pulltorefresh.library.refresh_view;
+package com.yalantis.phoenix.refresh_view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.Matrix;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.view.animation.Animation;
@@ -14,9 +12,9 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.Transformation;
 
-import com.yalantis.pulltorefresh.library.PullToRefreshView;
-import com.yalantis.pulltorefresh.library.R;
-import com.yalantis.pulltorefresh.library.util.Utils;
+import com.yalantis.phoenix.PullToRefreshView;
+import com.yalantis.phoenix.R;
+import com.yalantis.phoenix.util.Utils;
 
 /**
  * Created by Oleksii Shliama on 22/12/2014.
@@ -69,18 +67,24 @@ public class SunRefreshView extends BaseRefreshView implements Animatable {
 
     private boolean isRefreshing = false;
 
-    public SunRefreshView(Context context, PullToRefreshView parent) {
+    public SunRefreshView(Context context, final PullToRefreshView parent) {
         super(context, parent);
         mParent = parent;
         mMatrix = new Matrix();
 
-        initiateDimens();
-        createBitmaps();
         setupAnimations();
+        parent.post(new Runnable() {
+            @Override
+            public void run() {
+                initiateDimens(parent.getWidth());
+            }
+        });
     }
 
-    private void initiateDimens() {
-        mScreenWidth = getContext().getResources().getDisplayMetrics().widthPixels;
+    public void initiateDimens(int viewWidth) {
+        if (viewWidth <= 0 || viewWidth == mScreenWidth) return;
+
+        mScreenWidth = viewWidth;
         mSkyHeight = (int) (SKY_RATIO * mScreenWidth);
         mSkyTopOffset = (mSkyHeight * 0.38f);
         mSkyMoveOffset = Utils.convertDpToPixel(getContext(), 15);
@@ -94,14 +98,19 @@ public class SunRefreshView extends BaseRefreshView implements Animatable {
         mSunTopOffset = (mParent.getTotalDragDistance() * 0.1f);
 
         mTop = -mParent.getTotalDragDistance();
+
+        createBitmaps();
     }
 
     private void createBitmaps() {
-        mSky = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sky);
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+
+        mSky = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sky, options);
         mSky = Bitmap.createScaledBitmap(mSky, mScreenWidth, mSkyHeight, true);
-        mTown = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.buildings);
+        mTown = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.buildings, options);
         mTown = Bitmap.createScaledBitmap(mTown, mScreenWidth, (int) (mScreenWidth * TOWN_RATIO), true);
-        mSun = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sun);
+        mSun = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sun, options);
         mSun = Bitmap.createScaledBitmap(mSun, mSunSize, mSunSize, true);
     }
 
@@ -119,8 +128,12 @@ public class SunRefreshView extends BaseRefreshView implements Animatable {
 
     @Override
     public void draw(Canvas canvas) {
+        if (mScreenWidth <= 0) return;
+
         final int saveCount = canvas.save();
+
         canvas.translate(0, mTop);
+        canvas.clipRect(0, -mTop, mScreenWidth, mParent.getTotalDragDistance());
 
         drawSky(canvas);
         drawSun(canvas);
@@ -258,21 +271,6 @@ public class SunRefreshView extends BaseRefreshView implements Animatable {
     @Override
     public void setBounds(int left, int top, int right, int bottom) {
         super.setBounds(left, top, right, mSkyHeight + top);
-    }
-
-    @Override
-    public void setAlpha(int alpha) {
-
-    }
-
-    @Override
-    public void setColorFilter(ColorFilter colorFilter) {
-
-    }
-
-    @Override
-    public int getOpacity() {
-        return PixelFormat.TRANSLUCENT;
     }
 
     @Override

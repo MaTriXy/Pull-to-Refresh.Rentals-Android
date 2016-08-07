@@ -1,11 +1,11 @@
-package com.yalantis.pulltorefresh.library;
+package com.yalantis.phoenix;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -17,9 +17,9 @@ import android.view.animation.Transformation;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 
-import com.yalantis.pulltorefresh.library.refresh_view.BaseRefreshView;
-import com.yalantis.pulltorefresh.library.refresh_view.SunRefreshView;
-import com.yalantis.pulltorefresh.library.util.Utils;
+import com.yalantis.phoenix.refresh_view.BaseRefreshView;
+import com.yalantis.phoenix.refresh_view.SunRefreshView;
+import com.yalantis.phoenix.util.Utils;
 
 import java.security.InvalidParameterException;
 
@@ -30,7 +30,6 @@ public class PullToRefreshView extends ViewGroup {
     private static final float DECELERATE_INTERPOLATION_FACTOR = 2f;
 
     public static final int STYLE_SUN = 0;
-    public static final int STYLE_JET = 1;
     public static final int MAX_OFFSET_ANIMATION_DURATION = 700;
 
     private static final int INVALID_POINTER = -1;
@@ -51,6 +50,11 @@ public class PullToRefreshView extends ViewGroup {
     private float mFromDragPercent;
     private boolean mNotify;
     private OnRefreshListener mListener;
+
+    private int mTargetPaddingTop;
+    private int mTargetPaddingBottom;
+    private int mTargetPaddingRight;
+    private int mTargetPaddingLeft;
 
     public PullToRefreshView(Context context) {
         this(context, null);
@@ -82,12 +86,17 @@ public class PullToRefreshView extends ViewGroup {
             case STYLE_SUN:
                 mBaseRefreshView = new SunRefreshView(getContext(), this);
                 break;
-            case STYLE_JET:
-                // TODO
             default:
                 throw new InvalidParameterException("Type does not exist");
         }
         mRefreshView.setImageDrawable(mBaseRefreshView);
+    }
+
+    /**
+     * This method sets padding for the refresh (progress) view.
+     */
+    public void setRefreshViewPadding(int left, int top, int right, int bottom) {
+        mRefreshView.setPadding(left, top, right, bottom);
     }
 
     public int getTotalDragDistance() {
@@ -114,8 +123,13 @@ public class PullToRefreshView extends ViewGroup {
         if (getChildCount() > 0) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                if (child != mRefreshView)
+                if (child != mRefreshView) {
                     mTarget = child;
+                    mTargetPaddingBottom = mTarget.getPaddingBottom();
+                    mTargetPaddingLeft = mTarget.getPaddingLeft();
+                    mTargetPaddingRight = mTarget.getPaddingRight();
+                    mTargetPaddingTop = mTarget.getPaddingTop();
+                }
             }
         }
     }
@@ -167,7 +181,7 @@ public class PullToRefreshView extends ViewGroup {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
+    public boolean onTouchEvent(@NonNull MotionEvent ev) {
 
         if (!mIsBeingDragged) {
             return super.onTouchEvent(ev);
@@ -268,6 +282,7 @@ public class PullToRefreshView extends ViewGroup {
             animateOffsetToStartPosition();
         }
         mCurrentOffsetTop = mTarget.getTop();
+        mTarget.setPadding(mTargetPaddingLeft, mTargetPaddingTop, mTargetPaddingRight, mTotalDragDistance);
     }
 
     private final Animation mAnimateToStartPosition = new Animation() {
@@ -299,6 +314,7 @@ public class PullToRefreshView extends ViewGroup {
 
         mCurrentDragPercent = targetPercent;
         mBaseRefreshView.setPercent(mCurrentDragPercent, true);
+        mTarget.setPadding(mTargetPaddingLeft, mTargetPaddingTop, mTargetPaddingRight, mTargetPaddingBottom + targetTop);
         setTargetOffsetTop(offset, false);
     }
 
@@ -401,8 +417,9 @@ public class PullToRefreshView extends ViewGroup {
         mListener = listener;
     }
 
-    public static interface OnRefreshListener {
-        public void onRefresh();
+    public interface OnRefreshListener {
+        void onRefresh();
     }
 
 }
+

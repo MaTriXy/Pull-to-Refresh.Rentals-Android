@@ -1,8 +1,8 @@
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Pull--to--Refresh.Rentals--Android-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1386)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Phoenix-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1386) [![Yalantis](https://github.com/Yalantis/Phoenix/blob/master/badge.png)](https://yalantis.com/?utm_source=github)
 
-# Pull-to-Refresh.Rentals-Android
+# Phoenix Pull-to-Refresh
 
-This project aims to provide a simple and customizable pull to refresh implementation. Made in [Yalantis] (http://yalantis.com/)
+#### This project aims to provide a simple and customizable pull to refresh implementation. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
 
 Check this [project on Dribbble] (https://dribbble.com/shots/1650317-Pull-to-Refresh-Rentals)  
 Check this [project on Behance] (https://www.behance.net/gallery/20411445/Mobile-Animations-Interactions)  
@@ -15,12 +15,12 @@ Check this [project on Behance] (https://www.behance.net/gallery/20411445/Mobile
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:pulltorefresh:1.0.0' ```
+    ``` compile 'com.yalantis:phoenix:1.2.3' ```
 
 2. Include the PullToRefreshView widget in your layout.
 
 	```xml
-    <com.yalantis.pulltorefresh.library.PullToRefreshView
+    <com.yalantis.phoenix.PullToRefreshView
         android:id="@+id/pull_to_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -32,7 +32,7 @@ Check this [project on Behance] (https://www.behance.net/gallery/20411445/Mobile
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </com.yalantis.pulltorefresh.library.PullToRefreshView>
+    </com.yalantis.phoenix.PullToRefreshView>
     ```
 
 3. In your `onCreate` method refer to the View and setup OnRefreshListener.
@@ -53,11 +53,6 @@ Check this [project on Behance] (https://www.behance.net/gallery/20411445/Mobile
 
 #Customization
 
-There is one attribute which applicable to `PullToRefreshView`.
-
-   * `type` type of refresh animation
-   * You can also set this attribute from your java code by calling `setRefreshStyle(int type)`
-
 To customize drawables you can change:
    * sun.png - Sun image
    * sky.png - background image
@@ -70,14 +65,26 @@ If you need to change progress state:
 ```
 #Compatibility
   
-  * Android Jelly Bean 4.1+
+  * Android GINGERBREAD 2.3+
   
 # Changelog
+
+### Version: 1.2
+
+  * Sample updated with RecyclerView example
+  * Showing the refresh view just in it's bounds. (Issue with transparent / empty ListView)
+  * Possibility to set refresh view padding
 
 ### Version: 1.0
 
   * Initial Build
-  
+
+#### Let us know!
+
+We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the animation. 
+
+P.S. We’re going to publish more awesomeness wrapped in code and a tutorial on how to make UI for Android (iOS) better than better. Stay tuned!
+
 ## License
 
     Copyright 2015, Yalantis
